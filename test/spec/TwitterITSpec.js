@@ -1,16 +1,19 @@
-var Twitter = require('../../lib/twitter').Twitter;
+var Twitter = require('../../lib/twitter');
 var fs = require('fs');
+var util = require ('util')
+
 
 describe('Twitter', function () {
     var twitter;
     var config;
+    config = JSON.parse(fs.readFileSync('./test/spec/properties.json', encoding="ascii"));
+
     var error = function (err, response, body) {
-        console.log('ERROR [%s]', err);
+        console.log('ERROR [%s]', util.inspect(err));
         done();
     };
 
     beforeEach(function (done) {
-        config = JSON.parse(fs.readFileSync('./test/spec/properties.json', encoding="ascii"));
         twitter = new Twitter(config);
         expect(twitter).toBeDefined();
         expect(twitter.oauth).toBeDefined();
@@ -23,8 +26,15 @@ describe('Twitter', function () {
         });
     });
 
+    it('should verify user credentials', function (done) {
+        twitter.verifyCredentials(error, function (credentials) {
+            expect(JSON.parse(credentials).screen_name).toBeDefined();
+            done();
+        });
+    });
+
     it('should get timeline for a user', function (done) {
-        var params = { screen_name: 'BoyCook', count: '10'};
+        var params = { screen_name: 'mac_asaurus', count: '10'};
         twitter.getUserTimeline(params, error,
             function (data) {
                 expect(JSON.parse(data).length).toEqual(10);
@@ -70,6 +80,17 @@ describe('Twitter', function () {
             function (tweet) {
                 tweet = JSON.parse(tweet);
                 expect(tweet.id_str).toEqual(params.id);
+                done();
+            }
+        );
+    });
+
+    it('should search for tweets', function (done) {
+        var params = { q: 'bieber'};
+        twitter.getTweet(params, error,
+            function (tweets) {
+                tweets = JSON.parse(tweets);
+                expect(tweets.statuses).toBeDefined();
                 done();
             }
         );
