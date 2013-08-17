@@ -68,9 +68,8 @@ describe('Twitter', function () {
         var params = { id: '292964063091236864'};
         twitter.getTweet(params, error,
             function (tweet) {
-				tweet = JSON.parse(tweet);
+                tweet = JSON.parse(tweet);
                 expect(tweet.id_str).toEqual(params.id);
-//                expect(tweet.id).toEqual(data.id);
                 done();
             }
         );
